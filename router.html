@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>好事发生 - 正在接通应用商店...</title>
+    <style>
+        body { 
+            text-align: center; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            padding-top: 80px; 
+            background-color: #f7f7f7; 
+            color: #333; 
+        }
+        h2 { color: #1a1a1a; margin-bottom: 10px; font-weight: 600; font-size: 22px; }
+        p { font-size: 15px; color: #666; width: 80%; margin: 15px auto; line-height: 1.5; }
+        .tips { display: none; margin-top: 20px; font-size: 14px; color: #666; }
+        
+        /* 微信/QQ 遮罩层 */
+        .wechat-mask { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.8); 
+            z-index: 999; 
+            text-align: right; 
+        }
+        .wechat-mask img { width: 80%; max-width: 300px; margin-top: 20px; margin-right: 20px; }
+        .wechat-tip-text {
+            color: #fff;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-right: 20px;
+            line-height: 1.6;
+            text-align: right;
+        }
+
+        /* 按钮与动画 */
+        .btn-direct {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 24px;
+            background-color: #FF5A5F;
+            color: #fff;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(255, 90, 95, 0.3);
+            transition: all 0.2s ease;
+        }
+        .spinner {
+            margin: 20px auto;
+            width: 40px; height: 40px;
+            border: 4px solid rgba(0,0,0,0.1);
+            border-left-color: #FF5A5F;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="wechat-mask" id="wechatMask">
+        <div class="wechat-tip-text">
+            ↗️ 请点击右上角菜单<br>选择 <span style="color:#FF5A5F;">“在浏览器打开”</span>
+        </div>
+    </div>
+
+    <!-- 正常页面 -->
+    <div id="mainContent">
+        <div class="spinner"></div>
+        <h2>正在为您唤起应用商店...</h2>
+        <p>系统正在接通您的专属应用市场</p>
+        
+        <div style="margin-top: 40px;">
+            <p style="font-size: 13px; color: #999;">如果长时间无反应，或您的商店未收录</p>
+            <a href="https://www.haoshiyinli.com/download/goodhappens-latest-official.apk" class="btn-direct">⬇️ 点击这里直接下载官方包</a>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            var ua = navigator.userAgent.toLowerCase();
+            var isWeixin = ua.indexOf('micromessenger') != -1 || ua.indexOf('qq/') != -1; // 包含微信和QQ
+            var isAndroid = ua.indexOf('android') != -1;
+            var isIOS = ua.indexOf('iphone') != -1 || ua.indexOf('ipad') != -1;
+
+            if (isWeixin) {
+                // 如果在微信里，拦截页面并提示跳出
+                document.getElementById('wechatMask').style.display = 'block';
+                document.getElementById('mainContent').style.display = 'none';
+            } else if (isAndroid) {
+                // 如果是安卓原生浏览器，尝试统跳协议
+                window.location.href = "market://details?id=cn.goodhappens";
+                
+                // 设置延迟兜底。如果商店拉起成功，页面会挂起或跳走；
+                // 如果拉起失败或用户返回，3秒后自动下载 APK 兜底。
+                setTimeout(function() {
+                    window.location.href = "https://www.haoshiyinli.com/download/goodhappens-latest-official.apk";
+                }, 3000);
+            } else if (isIOS) {
+                // 苹果用户如果误触进到了安卓链接，送他去 App Store
+                window.location.href = "https://apps.apple.com/cn/app/id6446152179"; // 这里之前是好事发生的数字ID，如果不准确会自动跳转Apple主站，但至少安全
+            } else {
+                // PC 端访问，直接下载官方包
+                window.location.href = "https://www.haoshiyinli.com/download/goodhappens-latest-official.apk";
+            }
+        };
+    </script>
+</body>
+</html>
