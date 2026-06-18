@@ -4907,4 +4907,56 @@ a:hover{border-bottom-color:var(--orange)}
 
 
 <script data-goatcounter="https://haoshiyinli.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script>
+// 章节阅读埋点：用户滚动至某章节时，自动上报至 GoatCounter
+window.addEventListener('load', function() {
+  // 等待 goatcounter 加载完成
+  var waitGC = setInterval(function() {
+    if (window.goatcounter && window.goatcounter.count) {
+      clearInterval(waitGC);
+      initChapterTracking();
+    }
+  }, 500);
+
+  // 最多等 10 秒
+  setTimeout(function() { clearInterval(waitGC); }, 10000);
+
+  function initChapterTracking() {
+    var reported = {};
+    var chapters = document.querySelectorAll('.cb, .cb-app');
+    if (!chapters.length) return;
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        var el = entry.target;
+        var cn = el.querySelector('.cn');
+        var h1 = el.querySelector('h1');
+        var label = '';
+        if (cn) label = cn.textContent.trim();
+        if (h1) {
+          if (label) label += ' - ';
+          label += h1.textContent.trim();
+        }
+        if (!label) return;
+        if (reported[label]) return;
+        reported[label] = true;
+
+        var slug = label
+          .replace(/[·\s]+/g, '_')
+          .replace(/[^\u4e00-\u9fa5\w\-]/g, '')
+          .substring(0, 80);
+
+        window.goatcounter.count({
+          path: '/book/read/' + slug,
+          title: '阅读: ' + label,
+          event: true
+        });
+      });
+    }, { threshold: 0.15 });
+
+    chapters.forEach(function(ch) { observer.observe(ch); });
+  }
+});
+</script>
 </body></html>
